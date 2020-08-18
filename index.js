@@ -1,4 +1,4 @@
-const {uuidv1} = require('uuid');
+const {v4: uuid} = require('uuid');
 
 /** Store a single undo step */
 class Node {
@@ -10,7 +10,7 @@ class Node {
   constructor(data, parent) {
     this.data = data;
     this.parent = parent;
-    this.id = uuidv1().toString();
+    this.id = uuid().toString();
 
     this.recent = null;
     this.old = null;
@@ -48,8 +48,8 @@ class Tree {
   /**
    * Callback for Tree class to handle undoing
    * @callback handler
-   * @param {String} Action will be either "FORWARD" or "BACKWARD"
-   * @param {Object} Data
+   * @param {String} direction will be either "FORWARD" or "BACKWARD"
+   * @param {Object} data
    */
 
   /**
@@ -61,7 +61,8 @@ class Tree {
     this.options = options;
     this.tree = new Map();
     this.counter = 0;
-    this.current = this.node(data, null);
+    this.current = this.node({ROOT: true}, null);
+    if (!options) options={};
     this.keep = options.keep || 500;
     this.tail = this.current;
   }
@@ -99,8 +100,8 @@ class Tree {
   add(data) {
     const n = this.node(data, this.current);
     this.cn.next(n);
+    this.handler('FORWARD', this.get(n).data);
     this.current = n;
-    this.oldest = n;
     if (this.counter > this.keep) this.purgeTail();
   }
 
@@ -151,10 +152,10 @@ class Tree {
     // check some stuff
     if (!n) return false;
     if (!this.has(n)) return false;
+    // call the handler
+    this.handler('BACKWARD', this.cn.data);
     // make this the new current
     this.current = n;
-    // call the handler
-    this.handler('UNDO', this.cn.data);
     return true;
   }
 
@@ -169,7 +170,7 @@ class Tree {
     // make this the new current
     this.current = n;
     // call the handler
-    this.handler('REDO', this.cn.data);
+    this.handler('FORWARD', this.cn.data);
     return true;
   }
 
@@ -196,7 +197,7 @@ class Tree {
     {id, data, recent{id,data,recent...}, old{id,data,recent..}
   */
   list() {
-    return this.getChildrenTree(this.oldest);
+    return this.getChildrenTree(this.tail);
   }
 }
 
