@@ -28,7 +28,6 @@ history.add({number: 2});
 history.undo();
 history.add({number: 3});
 
-
 console.log(`Total: ${total}`);
 console.log(events);
 console.log(require('util').inspect(history.list(), {depth: null}));
