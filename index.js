@@ -178,7 +178,7 @@ class Tree {
   * Call this when you want to redo
   * @return {Bool} was the redo successfull
   */
-  redoAlt() {
+  redoOld() {
     const n = this.cn.old;
     if (!n) return false;
     if (!this.has(n)) return false;

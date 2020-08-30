@@ -27,6 +27,8 @@ history.add({number: 1});
 history.add({number: 2});
 history.undo();
 history.add({number: 3});
+history.undo();
+history.redoOld();
 
 console.log(`Total: ${total}`);
 console.log(events);
