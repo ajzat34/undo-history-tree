@@ -161,10 +161,25 @@ class Tree {
 
   /**
   * Call this when you want to redo
-  * @return {Bool} was the undo successfull
+  * @return {Bool} was the redo successfull
   */
   redo() {
     const n = this.cn.recent;
+    if (!n) return false;
+    if (!this.has(n)) return false;
+    // make this the new current
+    this.current = n;
+    // call the handler
+    this.handler('FORWARD', this.cn.data);
+    return true;
+  }
+
+  /**
+  * Call this when you want to redo
+  * @return {Bool} was the redo successfull
+  */
+  redoAlt() {
+    const n = this.cn.old;
     if (!n) return false;
     if (!this.has(n)) return false;
     // make this the new current
