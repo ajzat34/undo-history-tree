@@ -1,13 +1,16 @@
 const {v4: uuid} = require('uuid');
+const events = require('events');
 
 /** Store a single undo step */
 class Node {
   /**
   * @constructor
-  * @param {Object} data wharever you want!
+  * @param {string} type the event name
+  * @param {Object} data anything
   * @param {String} parent the id of the node that this one should undo to
   */
-  constructor(data, parent) {
+  constructor(type, data, parent) {
+    this.type = type;
     this.data = data;
     this.parent = parent;
     this.id = uuid().toString();
@@ -44,7 +47,7 @@ class Node {
 /**
 * Holds and manages an undo tree
 */
-class Tree {
+class Tree extends events.EventEmitter {
   /**
    * Callback for Tree class to handle undoing
    * @callback handler
@@ -53,29 +56,29 @@ class Tree {
    */
 
   /**
-  * @param {Handler} handler a callback to handle undo and redo events
   * @param {Object} options
   */
-  constructor(handler, options) {
-    this.handler = handler;
+  constructor(options={}) {
+    super();
     this.options = options;
     this.tree = new Map();
     this.counter = 0;
-    this.current = this.node({ROOT: true}, null);
-    if (!options) options={};
+    this.current = this.node('ROOT', {ROOT: true}, null);
     this.keep = options.keep || 500;
     this.tail = this.current;
   }
 
   /**
   * Create a node
+  * all same as Node.constructor
+  * @param {string} type
   * @param {Object} data
   * @param {String} parent
   * @return {String} id of new node
   */
-  node(data, parent) {
+  node(type, data, parent) {
     this.counter++;
-    const n = new Node(data, parent);
+    const n = new Node(type, data, parent);
     this.tree.set(n.id, n);
     return n.id;
   }
@@ -94,13 +97,47 @@ class Tree {
   }
 
   /**
+  * Dispatch an event for an undo node
+  * @param {string} event the name of the event
+  * @param {string} direction the direction of the data,
+      (forward, or backward) (not case sensitive)
+  * @param {object} data
+  */
+  dispatch(event, direction, data) {
+    direction = direction.toLowerCase();
+    if (direction !== 'forward' && direction !== 'backward') {
+      throw new Error(
+          `value for direction must be one of 'forward' or 'backward', got ${direction}`);
+    }
+    this.emit(`${event}//${direction}`, data, event, direction);
+  }
+
+  /**
+  * Handle a undo node
+  * @param {string} event the name of the event
+  * @param {string} direction the direction of the data,
+      (forward, or backward) (not case sensitive)
+  * @param {Function} callback a handler(data)
+  */
+  handle(event, direction, callback) {
+    direction = direction.toLowerCase();
+    if (direction !== 'forward' && direction !== 'backward') {
+      throw new Error(
+          `value for direction must be one of 'forward' or 'backward', got ${direction}`);
+    }
+    this.on(`${event}//${direction}`, callback);
+  }
+
+  /**
   * Add the next undo/redo step
+  * @param {string} type the event name
   * @param {Object} data whatever you want
   */
-  add(data) {
-    const n = this.node(data, this.current);
+  add(type, data) {
+    const n = this.node(type, data, this.current);
     this.cn.next(n);
-    this.handler('FORWARD', this.get(n).data);
+    const node = this.get(n);
+    this.dispatch(node.type, 'FORWARD', node.data);
     this.current = n;
     if (this.counter > this.keep) this.purgeTail();
   }
@@ -153,7 +190,8 @@ class Tree {
     if (!n) return false;
     if (!this.has(n)) return false;
     // call the handler
-    this.handler('BACKWARD', this.cn.data);
+    const node = this.cn;
+    this.dispatch(node.type, 'BACKWARD', node.data);
     // make this the new current
     this.current = n;
     return true;
@@ -170,7 +208,8 @@ class Tree {
     // make this the new current
     this.current = n;
     // call the handler
-    this.handler('FORWARD', this.cn.data);
+    const node = this.get(n);
+    this.dispatch(node.type, 'FORWARD', node.data);
     return true;
   }
 
@@ -185,7 +224,8 @@ class Tree {
     // make this the new current
     this.current = n;
     // call the handler
-    this.handler('FORWARD', this.cn.data);
+    const node = this.get(n);
+    this.dispatch(node.type, 'FORWARD', node.data);
     return true;
   }
 

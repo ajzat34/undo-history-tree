@@ -1,6 +1,6 @@
 {
   "name": "undo-tree",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "undo (binary)-tree for js",
   "main": "index.js",
   "author": "Andrew Johnson <ajzat25@gmail.com>",
