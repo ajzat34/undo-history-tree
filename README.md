@@ -20,7 +20,6 @@ history.handle('add', 'backward', (data)=>{
 });
 
 // feed it some data
-// feed it some data
 history.add('add', {number: 1});  // 0+1 = 1
 history.add('add', {number: 2});  // 1+2 = 3
 history.undo();                   // 3-2 = 1
