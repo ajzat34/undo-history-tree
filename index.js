@@ -153,7 +153,7 @@ class Tree extends events.EventEmitter {
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
     if (this.counter > this.keep) this.purgeTail();
-    dispatchUpdateEvent();
+    this.dispatchUpdateEvent();
     return n;
   }
 
