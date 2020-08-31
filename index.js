@@ -260,6 +260,7 @@ class Tree extends events.EventEmitter {
     const n = this.get(nodeid);
     return {
       id: nodeid,
+      type: n.type,
       data: n.data,
       recent: this.getChildrenTree(n.recent),
       old: this.getChildrenTree(n.old),
