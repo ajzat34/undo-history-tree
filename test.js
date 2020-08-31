@@ -1,36 +1,49 @@
 const Undo = require('./index.js');
 
+// create an undo tree
+const history = new Undo();
+
+// we will change this value with undo/redo events
 let total = 0;
-const events = [];
 
-/**
-* Handle undo/redo events
-* @param {String} direction "FORWARD" or "BACKWARD"
-* @param {Object} data
-*/
-function handler(direction, data) {
-  events.push({
-    direction: direction,
-    data: data,
-  });
+// increment for each .add .undo .redo ect.
+let step = 0;
 
-  if (direction == 'FORWARD') {
-    total += data.number;
-  } else {
-    total -= data.number;
+// create handlers
+history.handle('add', 'forward', (data)=>{
+  total += data.number;
+});
+history.handle('add', 'backward', (data)=>{
+  total -= data.number;
+});
+
+function shouldBe(n) {
+  step++;
+  if (total !== n) {
+    console.log(require('util').inspect(history.list(), {depth: null}));
+    throw new Error(`Error on step ${step}: current value is ${n}, should be ${n}`);
   }
 }
 
-const history = new Undo(handler);
-
-history.add({number: 1});
-history.add({number: 2});
-history.undo();
-history.add({number: 3});
-history.undo();
-history.redoOld();
+// feed it some data
+history.add('add', {number: 1}); // 0+1 = 1
+shouldBe(1);
+history.add('add', {number: 2}); // 1+2 = 3
+shouldBe(3);
+history.undo(); // 3-2 = 1
+shouldBe(1);
+history.add('add', {number: 3}); // 1+3 = 4
+shouldBe(4);
+history.undo(); // 4-3 = 1
+shouldBe(1);
+history.redoOld(); // 1+2 = 3
+shouldBe(3);
+history.add('add', {number: 10}); // 3+10 = 13
+shouldBe(13);
+history.undo(); // 13-10 = 3
+shouldBe(3);
+history.redo(); // 13+10 = 13
+shouldBe(13);
 
 console.log(`Total: ${total}`);
-console.log(events);
-console.log(require('util').inspect(history.list(), {depth: null}));
-console.log(history.current);
+console.log(`Successfull!`);
