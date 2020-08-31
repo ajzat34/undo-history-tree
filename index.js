@@ -110,6 +110,7 @@ class Tree extends events.EventEmitter {
           `value for direction must be one of 'forward' or 'backward', got ${direction}`);
     }
     this.emit(`${event}//${direction}`, data, event, direction);
+    this.emit('__update', event, direction, data);
   }
 
   /**
@@ -126,6 +127,14 @@ class Tree extends events.EventEmitter {
           `value for direction must be one of 'forward' or 'backward', got ${direction}`);
     }
     this.on(`${event}//${direction}`, callback);
+  }
+
+  /**
+  * Handle all events
+  * @param {function} callback
+  */
+  handleAll(callback) {
+    this.on('__update', callback);
   }
 
   /**
