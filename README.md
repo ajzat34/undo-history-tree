@@ -2,7 +2,7 @@
 undo history with a binary tree in NodeJS/Electron
 
 # Usage
-```
+``` js
 const Undo = require('./index.js');
 
 // create an undo tree
