@@ -15,12 +15,15 @@ history.handle('add', 'backward', (data)=>{
 });
 
 // feed it some data
-history.add('add', {number: 1});
-history.add('add', {number: 2});
-history.undo();
-history.add('add', {number: 3});
-history.undo();
-history.redoOld();
+history.add('add', {number: 1}); // 0+1 = 1
+history.add('add', {number: 2}); // 1+2 = 3
+history.undo(); // 3-2 = 1
+history.add('add', {number: 3}); // 1+3 = 4
+history.undo(); // 4-3 = 1
+history.redoOld(); // 1+2 = 3
+history.add('add', {number: 10}); // 3+10 = 13
+history.undo(); // 13-10 = 3
+history.redo(); // 13+10 = 13
 
 console.log(`Total: ${total}`);
-console.log(require('util').inspect(history.list(), {depth: null}));
+// console.log(require('util').inspect(history.list(), {depth: null}));
