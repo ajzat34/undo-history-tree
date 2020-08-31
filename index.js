@@ -202,7 +202,7 @@ class Tree extends events.EventEmitter {
     this.remove(this.tail);
     // make the recent branch the new tail
     this.tail = n.recent;
-    dispatchUpdateEvent();
+    this.dispatchUpdateEvent();
   }
 
   /**
@@ -219,7 +219,7 @@ class Tree extends events.EventEmitter {
     // call the handler
     const node = this.cn;
     this.dispatch(node.type, 'BACKWARD', node.data);
-    dispatchUpdateEvent();
+    this.dispatchUpdateEvent();
     return true;
   }
 
@@ -236,7 +236,7 @@ class Tree extends events.EventEmitter {
     // call the handler
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
-    dispatchUpdateEvent();
+    this.dispatchUpdateEvent();
     return true;
   }
 
@@ -253,7 +253,7 @@ class Tree extends events.EventEmitter {
     // call the handler
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
-    dispatchUpdateEvent();
+    this.dispatchUpdateEvent();
     return true;
   }
 
