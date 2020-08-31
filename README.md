@@ -20,10 +20,16 @@ history.handle('add', 'backward', (data)=>{
 });
 
 // feed it some data
-history.add('add', {number: 1});
-history.add('add', {number: 2});
-history.undo();
-history.add('add', {number: 3});
-history.undo();
-history.redoOld();
+// feed it some data
+history.add('add', {number: 1});  // +1 = 1
+history.add('add', {number: 2});  // +2 = 3
+history.undo();                   // -2 = 1
+history.add('add', {number: 3});  // +3 = 4
+history.undo();                   // -3 = 4
+history.redoOld();                // +2 = 3
+history.add('add', {number: 10}); // +10 = 13
+history.undo();                   // -10 = 3
+history.redo();                   // +10 = 13
+
+console.log('total', total)
 ```
