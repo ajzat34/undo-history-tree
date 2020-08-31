@@ -146,9 +146,9 @@ class Tree extends events.EventEmitter {
   add(type, data) {
     const n = this.node(type, data, this.current);
     this.cn.next(n);
+    this.current = n;
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
-    this.current = n;
     if (this.counter > this.keep) this.purgeTail();
     return n;
   }
@@ -209,11 +209,11 @@ class Tree extends events.EventEmitter {
     // check some stuff
     if (!n) return false;
     if (!this.has(n)) return false;
+    // make this the new current
+    this.current = n;
     // call the handler
     const node = this.cn;
     this.dispatch(node.type, 'BACKWARD', node.data);
-    // make this the new current
-    this.current = n;
     return true;
   }
 
