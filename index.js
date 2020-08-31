@@ -110,7 +110,10 @@ class Tree extends events.EventEmitter {
           `value for direction must be one of 'forward' or 'backward', got ${direction}`);
     }
     this.emit(`${event}//${direction}`, data, event, direction);
-    this.emit('__update', event, direction, data);
+  }
+
+  dispatchUpdateEvent() {
+    this.emit('__update');
   }
 
   /**
@@ -133,7 +136,7 @@ class Tree extends events.EventEmitter {
   * Handle all events
   * @param {function} callback
   */
-  handleAll(callback) {
+  onUpdate(callback) {
     this.on('__update', callback);
   }
 
@@ -150,6 +153,7 @@ class Tree extends events.EventEmitter {
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
     if (this.counter > this.keep) this.purgeTail();
+    dispatchUpdateEvent();
     return n;
   }
 
@@ -198,6 +202,7 @@ class Tree extends events.EventEmitter {
     this.remove(this.tail);
     // make the recent branch the new tail
     this.tail = n.recent;
+    dispatchUpdateEvent();
   }
 
   /**
@@ -214,6 +219,7 @@ class Tree extends events.EventEmitter {
     // call the handler
     const node = this.cn;
     this.dispatch(node.type, 'BACKWARD', node.data);
+    dispatchUpdateEvent();
     return true;
   }
 
@@ -230,6 +236,7 @@ class Tree extends events.EventEmitter {
     // call the handler
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
+    dispatchUpdateEvent();
     return true;
   }
 
@@ -246,6 +253,7 @@ class Tree extends events.EventEmitter {
     // call the handler
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
+    dispatchUpdateEvent();
     return true;
   }
 
