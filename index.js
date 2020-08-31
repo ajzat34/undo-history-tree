@@ -141,6 +141,7 @@ class Tree extends events.EventEmitter {
   * Add the next undo/redo step
   * @param {string} type the event name
   * @param {Object} data whatever you want
+  * @return {string} the id of the new token
   */
   add(type, data) {
     const n = this.node(type, data, this.current);
@@ -149,6 +150,16 @@ class Tree extends events.EventEmitter {
     this.dispatch(node.type, 'FORWARD', node.data);
     this.current = n;
     if (this.counter > this.keep) this.purgeTail();
+    return n;
+  }
+
+  /**
+  * Modify a tokens data
+  * @param {string} n the id of the target node
+  * @param {function(object)} callback as function(data)
+  */
+  mutate(n, callback) {
+    callback(this.get(n).data);
   }
 
   /**
