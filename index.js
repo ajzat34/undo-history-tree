@@ -17,6 +17,7 @@ class Node {
 
     this.recent = null;
     this.old = null;
+    this.remove = null;
   }
 
   /**
@@ -24,6 +25,7 @@ class Node {
   * @param {String} nodeid the id of the step to add
   */
   next(nodeid) {
+    this.remove = this.old;
     this.old = this.recent;
     this.recent = nodeid;
   }
@@ -147,12 +149,16 @@ class Tree extends events.EventEmitter {
   * @return {string} the id of the new token
   */
   add(type, data) {
+    const oldcurrent = this.current;
     const n = this.node(type, data, this.current);
     this.cn.next(n);
     this.current = n;
     const node = this.get(n);
     this.dispatch(node.type, 'FORWARD', node.data);
     if (this.counter > this.keep) this.purgeTail();
+    if (this.get(oldcurrent).remove) {
+      this.poison(this.get(oldcurrent).remove);
+    }
     this.dispatchUpdateEvent();
     return n;
   }
